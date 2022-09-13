@@ -16,7 +16,7 @@ MODULE Constants
     
     Character(*), PARAMETER     :: rosco_version = 'v2.6.0'             ! ROSCO version	
     INTEGER, PARAMETER                  :: DbKi             = C_DOUBLE            !< Default kind for double floating-point numbers
-    INTEGER, PARAMETER                  :: ReKi             = C_FLOAT             !< Default kind for single floating-point numbers
+    INTEGER, PARAMETER                  :: ReKi             = C_DOUBLE            !< Default kind for single floating-point numbers
     INTEGER, PARAMETER                  :: IntKi            = C_INT               !< Default kind for integer numbers
     
     REAL(DbKi), PARAMETER               :: RPS2RPM          = 9.5492966           ! Factor to convert radians per second to revolutions per minute.

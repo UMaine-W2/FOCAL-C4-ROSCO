@@ -71,7 +71,7 @@ CONTAINS
     END SUBROUTINE ReadAvrSWAP    
 ! -----------------------------------------------------------------------------------
     ! Define parameters for control actions
-    SUBROUTINE SetParameters(avrSWAP, accINFILE, size_avcMSG, CntrPar, LocalVar, objInst, PerfData, zmqVar, ErrVar)
+    SUBROUTINE SetParameters(avrSWAP, accINFILE, size_avcMSG, CntrPar, LocalVar, objInst, PerfData, ErrVar)
                 
         USE ROSCO_Types, ONLY : ControlParameters, LocalVariables, ObjectInstances, PerformanceData, ErrorVariables, ZMQ_Variables
         
@@ -83,7 +83,7 @@ CONTAINS
         TYPE(LocalVariables),       INTENT(INOUT)   :: LocalVar
         TYPE(ObjectInstances),      INTENT(INOUT)   :: objInst
         TYPE(PerformanceData),      INTENT(INOUT)   :: PerfData
-        TYPE(ZMQ_Variables),        INTENT(INOUT)   :: zmqVar
+        !TYPE(ZMQ_Variables),        INTENT(INOUT)   :: zmqVar
         TYPE(ErrorVariables),       INTENT(INOUT)   :: ErrVar
 
         
@@ -139,7 +139,7 @@ CONTAINS
             LocalVar%ACC_INFILE = accINFILE
 
             ! Read Control Parameter File
-            CALL ReadControlParameterFileSub(CntrPar, zmqVar, accINFILE, NINT(avrSWAP(50)),ErrVar)
+            CALL ReadControlParameterFileSub(CntrPar, accINFILE, NINT(avrSWAP(50)),ErrVar)
             ! If there's been an file reading error, don't continue
             ! Add RoutineName to error message
             IF (ErrVar%aviFAIL < 0) THEN
@@ -179,15 +179,15 @@ CONTAINS
             ENDIF
             
             ! Check if we're using zeromq
-            IF (CntrPar%ZMQ_Mode == 1) THEN ! add .OR. statements as more functionality is built in
-                zmqVar%ZMQ_Flag = .TRUE.
-            ENDIF
+            !IF (CntrPar%ZMQ_Mode == 1) THEN ! add .OR. statements as more functionality is built in
+            !    zmqVar%ZMQ_Flag = .TRUE.
+            !ENDIF
 
         ENDIF
     END SUBROUTINE SetParameters
     ! -----------------------------------------------------------------------------------
     ! Read all constant control parameters from DISCON.IN parameter file
-    SUBROUTINE ReadControlParameterFileSub(CntrPar, zmqVar, accINFILE, accINFILE_size,ErrVar)!, accINFILE_size)
+    SUBROUTINE ReadControlParameterFileSub(CntrPar, accINFILE, accINFILE_size,ErrVar)!, accINFILE_size)
         USE, INTRINSIC :: ISO_C_Binding
         USE ROSCO_Types, ONLY : ControlParameters, ErrorVariables, ZMQ_Variables
 
@@ -195,7 +195,7 @@ CONTAINS
         CHARACTER(accINFILE_size),  INTENT(IN   )       :: accINFILE(accINFILE_size)    ! DISCON input filename
         TYPE(ControlParameters),    INTENT(INOUT)       :: CntrPar                      ! Control parameter type
         TYPE(ErrorVariables),       INTENT(INOUT)       :: ErrVar                       ! Control parameter type
-        TYPE(ZMQ_Variables),        INTENT(INOUT)       :: zmqVar                       ! Control parameter type
+        !TYPE(ZMQ_Variables),        INTENT(INOUT)       :: zmqVar                       ! Control parameter type
         
         INTEGER(IntKi)                                  :: UnControllerParameters  ! Unit number to open file
         INTEGER(IntKi)                                  :: CurLine 
@@ -401,7 +401,7 @@ CONTAINS
         !------------ ZeroMQ ------------
         CALL ReadEmptyLine(UnControllerParameters,CurLine)   
         CALL ParseInput(UnControllerParameters,CurLine,'ZMQ_CommAddress',accINFILE(1), CntrPar%ZMQ_CommAddress,ErrVar)
-		CALL ParseInput(UnControllerParameters,CurLine,'ZMQ_UpdatePeriod',accINFILE(1), CntrPar%ZMQ_UpdatePeriod,ErrVar)
+        CALL ParseInput(UnControllerParameters,CurLine,'ZMQ_UpdatePeriod',accINFILE(1), CntrPar%ZMQ_UpdatePeriod,ErrVar)
 
         ! Fix Paths (add relative paths if called from another dir)
         IF (PathIsRelative(CntrPar%PerfFileName)) CntrPar%PerfFileName = TRIM(PriPath)//TRIM(CntrPar%PerfFileName)
