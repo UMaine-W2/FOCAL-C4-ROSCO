@@ -95,9 +95,9 @@ CALL SetParameters(avrSWAP, accINFILE, SIZE(avcMSG), CntrPar, LocalVar, objInst,
 CALL PreFilterMeasuredSignals(CntrPar, LocalVar, DebugVar, objInst, ErrVar)
 
 IF (((LocalVar%iStatus >= 0) .OR. (LocalVar%iStatus <= -8)) .AND. (ErrVar%aviFAIL >= 0))  THEN  ! Only compute control calculations if no error has occurred and we are not on the last time step
-    IF ((LocalVar%iStatus == -8) .AND. (ErrVar%aviFAIL >= 0))  THEN ! Write restart files
-        CALL WriteRestartFile(LocalVar, CntrPar, ErrVar, objInst, RootName, SIZE(avcOUTNAME))    
-    ENDIF
+    !IF ((LocalVar%iStatus == -8) .AND. (ErrVar%aviFAIL >= 0))  THEN ! Write restart files
+    !    CALL WriteRestartFile(LocalVar, CntrPar, ErrVar, objInst, RootName, SIZE(avcOUTNAME))    
+    !ENDIF
     !IF (zmqVar%ZMQ_Flag) THEN
     !    CALL UpdateZeroMQ(LocalVar, CntrPar, zmqVar, ErrVar)
     !ENDIF
@@ -109,6 +109,8 @@ IF (((LocalVar%iStatus >= 0) .OR. (LocalVar%iStatus <= -8)) .AND. (ErrVar%aviFAI
     CALL VariableSpeedControl(avrSWAP, CntrPar, LocalVar, objInst, ErrVar)
     CALL PitchControl(avrSWAP, CntrPar, LocalVar, objInst, DebugVar, ErrVar)
     
+    avrSWAP(200) = LocalVar%WE_Vw
+
     !IF (CntrPar%Y_ControlMode > 0) THEN
     !    CALL YawRateControl(avrSWAP, CntrPar, LocalVar, objInst, zmqVar, DebugVar, ErrVar)
     !END IF
