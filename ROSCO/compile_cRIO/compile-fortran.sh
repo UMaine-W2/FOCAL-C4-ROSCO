@@ -2,10 +2,9 @@
 # Compile rosco code using:
 # ./compile-fortran.sh libROSCO
 
-
-gfortran -g -Wall -Wno-unused-variable -Wno-unused-dummy-argument -fdefault-real-8 -fdefault-double-8 -ffree-form -fPIC -DIMPLICIT_DLLEXPORT -ffree-line-length-0 -c ../src/SysFiles/SysGnuLinux.f90 
 gfortran -g -Wall -Wno-unused-variable -Wno-unused-dummy-argument -fdefault-real-8 -fdefault-double-8 -ffree-form -fPIC -DIMPLICIT_DLLEXPORT -ffree-line-length-0 -c ../src/Constants.f90 
 gfortran -g -Wall -Wno-unused-variable -Wno-unused-dummy-argument -fdefault-real-8 -fdefault-double-8 -ffree-form -fPIC -DIMPLICIT_DLLEXPORT -ffree-line-length-0 -c ../src/ROSCO_Types.f90 
+gfortran -g -Wall -Wno-unused-variable -Wno-unused-dummy-argument -fdefault-real-8 -fdefault-double-8 -ffree-form -fPIC -DIMPLICIT_DLLEXPORT -ffree-line-length-0 -c ../src/SysFiles/SysGnuLinux.f90 
 gfortran -g -Wall -Wno-unused-variable -Wno-unused-dummy-argument -fdefault-real-8 -fdefault-double-8 -ffree-form -fPIC -DIMPLICIT_DLLEXPORT -ffree-line-length-0 -c ../src/ROSCO_Helpers.f90
 gfortran -g -Wall -Wno-unused-variable -Wno-unused-dummy-argument -fdefault-real-8 -fdefault-double-8 -ffree-form -fPIC -DIMPLICIT_DLLEXPORT -ffree-line-length-0 -c ../src/Filters.f90 
 gfortran -g -Wall -Wno-unused-variable -Wno-unused-dummy-argument -fdefault-real-8 -fdefault-double-8 -ffree-form -fPIC -DIMPLICIT_DLLEXPORT -ffree-line-length-0 -c ../src/Functions.f90

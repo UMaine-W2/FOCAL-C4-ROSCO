@@ -105,6 +105,53 @@ CONTAINS
         inst = inst + 1
 
     END FUNCTION SecLPFilter
+!---------------------------------------------------------------------------------------------------------------
+! Mod made by A. Wright on 9-16-22: Lines 110-153 comprise the new code for the 2nd order high-pass filter used to filter nacelle acceleration
+    REAL(DbKi) FUNCTION SecHPFilter(InputSignal, DT, CornerFreq, Damp, FP, iStatus, reset, inst)
+    ! Discrete time Low-Pass Filter of the form:
+    !                               Continuous Time Form:   H(s) = s^2 /(s^2 + 2*CornerFreq*Damp*s + CornerFreq^2)
+    !                               Discrete Time From:     H(z) = (b2*z^2 + b1*z + b0) / (a2*z^2 + a1*z + a0)
+    !                               Use Tustin transformation to convert from cont to discrete time: s = (1/Dt)(z-1)/(z+1)
+    
+        USE ROSCO_Types, ONLY : FilterParameters
+        TYPE(FilterParameters),       INTENT(INOUT)       :: FP 
+        REAL(DbKi), INTENT(IN)         :: InputSignal
+        REAL(DbKi), INTENT(IN)         :: DT                       ! time step [s]
+        REAL(DbKi), INTENT(IN)         :: CornerFreq               ! corner frequency [rad/s]
+        REAL(DbKi), INTENT(IN)         :: Damp                     ! Dampening constant
+        INTEGER(IntKi), INTENT(IN)      :: iStatus                  ! A status flag set by the simulation as follows: 0 if this is the first call, 1 for all subsequent time steps, -1 if this is the final call at the end of the simulation.
+        INTEGER(IntKi), INTENT(INOUT)   :: inst                     ! Instance number. Every instance of this function needs to have an unique instance number to ensure instances don't influence each other.
+        LOGICAL(4), INTENT(IN)      :: reset                    ! Reset the filter to the input signal
+
+        ! Initialization
+        IF ((iStatus == 0) .OR. reset )  THEN
+            FP%hpf2_OutputSignalLast1(inst)  = InputSignal
+            FP%hpf2_OutputSignalLast2(inst)  = InputSignal
+            FP%hpf2_InputSignalLast1(inst)   = InputSignal
+            FP%hpf2_InputSignalLast2(inst)   = InputSignal
+            
+            ! Coefficients
+            FP%hpf2_a2(inst) = DT**2.0*CornerFreq**2.0 + 4.0 + 4.0*Damp*CornerFreq*DT
+            FP%hpf2_a1(inst) = 2.0*DT**2.0*CornerFreq**2.0 - 8.0
+            FP%hpf2_a0(inst) = DT**2.0*CornerFreq**2.0 + 4.0 - 4.0*Damp*CornerFreq*DT
+            FP%hpf2_b2(inst) = 4.0
+            FP%hpf2_b1(inst) = -8.0
+            FP%hpf2_b0(inst) = 4.0
+        ENDIF
+
+        ! Filter
+        SecHPFilter = 1.0/FP%hpf2_a2(inst) * (FP%hpf2_b2(inst)*InputSignal + FP%hpf2_b1(inst)*FP%hpf2_InputSignalLast1(inst) + FP%hpf2_b0(inst)*FP%hpf2_InputSignalLast2(inst) - FP%hpf2_a1(inst)*FP%hpf2_OutputSignalLast1(inst) - FP%hpf2_a0(inst)*FP%hpf2_OutputSignalLast2(inst))
+
+        ! Save signals for next time step
+        FP%hpf2_InputSignalLast2(inst)   = FP%hpf2_InputSignalLast1(inst)
+        FP%hpf2_InputSignalLast1(inst)   = InputSignal
+        FP%hpf2_OutputSignalLast2(inst)  = FP%hpf2_OutputSignalLast1(inst)
+        FP%hpf2_OutputSignalLast1(inst)  = SecHPFilter
+
+        inst = inst + 1
+
+    END FUNCTION SecHPFilter
+!!
 !-------------------------------------------------------------------------------------------------------------------------------
     REAL(DbKi) FUNCTION HPFilter( InputSignal, DT, CornerFreq, FP, iStatus, reset, inst)
     ! Discrete time High-Pass Filter
@@ -248,6 +295,10 @@ CONTAINS
         TYPE(ErrorVariables),   INTENT(INOUT)       :: ErrVar
         INTEGER(IntKi) :: K  ! Integer used to loop through turbine blades
 
+        ! Mod make by A. Wright on 9/1/2022: read in tower fore-aft accelerometer noise for testing purposes. Define local variable noise for now.
+        REAL(DbKi)                     noise
+        REAL(DbKi)                     HPF2output        
+        
         ! If there's an error, don't even try to run
         IF (ErrVar%aviFAIL < 0) THEN
             RETURN
@@ -272,7 +323,22 @@ CONTAINS
             LocalVar%NacIMU_FA_AccF = SecLPFilter(LocalVar%NacIMU_FA_Acc, LocalVar%DT, CntrPar%F_FlCornerFreq(1), CntrPar%F_FlCornerFreq(2), LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instSecLPF) ! Fixed Damping
             LocalVar%FA_AccF = SecLPFilter(LocalVar%FA_Acc, LocalVar%DT, CntrPar%F_FlCornerFreq(1), CntrPar%F_FlCornerFreq(2), LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instSecLPF) ! Fixed Damping
             LocalVar%NacIMU_FA_AccF = HPFilter(LocalVar%NacIMU_FA_AccF, LocalVar%DT, CntrPar%F_FlHighPassFreq, LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instHPF) 
-            LocalVar%FA_AccF = HPFilter(LocalVar%FA_AccF, LocalVar%DT, CntrPar%F_FlHighPassFreq, LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instHPF) 
+            !LocalVar%FA_AccF = HPFilter(LocalVar%FA_AccF, LocalVar%DT, CntrPar%F_FlHighPassFreq, LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instHPF) 
+! Mod made by A. Wright on 9-16-22:
+! Alternatively, we can filter the FA_AccF signal with the newly added 2nd order high-pass filter. Note: we need to define the filter natural frequency and damping values below - these are for now
+! hard-wired values until we make the required updates to read these paramters in through the DISCON.IN file.
+            CntrPar%F_HPF2CornerFreq =  0.0075 ! in rad/s at full scale
+            CntrPar%F_HPF2Damping = 1.0
+            LocalVar%FA_AccF = SecHPFilter(LocalVar%FA_AccF, LocalVar%DT, CntrPar%F_HPF2CornerFreq, CntrPar%F_HPF2Damping, LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instHPF) 
+
+! Mod made by A. Wright on 9-16-22: do this for testing 2nd order HPF: test just a const input for now
+! Keep commented out unless testing this filter
+!            noise = 5. + .25*LocalVar%TIME
+!            HPF2output=SecHPFilter(noise, LocalVar%DT, CntrPar%F_HPF2CornerFreq, CntrPar%F_HPF2Damping, LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instHPF)
+!            print *, 'LocalVar%TIME =', LocalVar%TIME
+!            print *, 'noise =', noise
+!            print *, 'HPF2output =' ,HPF2output
+!!            
             
             IF (CntrPar%F_NotchType >= 2) THEN
                 LocalVar%NACIMU_FA_AccF = NotchFilter(LocalVar%NacIMU_FA_AccF, LocalVar%DT, CntrPar%F_NotchCornerFreq, CntrPar%F_NotchBetaNumDen(1), CntrPar%F_NotchBetaNumDen(2), LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instNotch) ! Fixed Damping

@@ -22,7 +22,12 @@ TYPE, PUBLIC :: ControlParameters
     REAL(DbKi)                    :: F_YawErr                    ! Corner low pass filter corner frequency for yaw controller [rad/s].
     REAL(DbKi), DIMENSION(:), ALLOCATABLE     :: F_FlpCornerFreq             ! Corner frequency (-3dB point) in the second order low pass filter of the blade root bending moment for flap control [rad/s].
     INTEGER(IntKi)                :: TD_Mode                     ! Tower damper mode (0- no tower damper, 1- feed back translational nacelle accelleration to pitch angle
-    REAL(DbKi)                    :: FA_HPFCornerFreq            ! Corner frequency (-3dB point) in the high-pass filter on the fore-aft acceleration signal [rad/s]
+    REAL(DbKi)                    :: FA_HPFCornerFreq            ! Corner frequency (-3dB point) in the 1st order high-pass filter on the fore-aft acceleration signal [rad/s]
+
+! Mode made by A. Wright on 9-15-22: add natural frequency and damping for a 2nd order high pass filter acting up nacelle fore-aft acceleration:
+    REAL(DbKi)                    :: F_HPF2CornerFreq             ! Corner frequency (-3dB point) in the first-order low-pass filter, [rad/s]
+    REAL(DbKi)                    :: F_HPF2Damping                ! Damping coefficient [used only when F_FilterType = 2]
+!!
     REAL(DbKi)                    :: FA_IntSat                   ! Integrator saturation (maximum signal amplitude contrbution to pitch from FA damper), [rad]
     REAL(DbKi)                    :: FA_KI                       ! Integral gain for the fore-aft tower damper controller, -1 = off / >0 = on [rad s/m]
     INTEGER(IntKi)                :: IPC_ControlMode             ! Turn Individual Pitch Control (IPC) for fatigue load reductions (pitch contribution) {0 - off, 1 - 1P reductions, 2 - 1P+2P reductions}
@@ -172,6 +177,20 @@ TYPE, PUBLIC :: FilterParameters
     REAL(DbKi), DIMENSION(99)     :: nf_b0                       ! Notch filter numerator coefficient 0
     REAL(DbKi), DIMENSION(99)     :: nf_a1                       ! Notch filter denominator coefficient 1
     REAL(DbKi), DIMENSION(99)     :: nf_a0                       ! Notch filter denominator coefficient 0
+
+! Mod made by A. Wright 9-15-22: introduce 2nd order high-pass (hpf2) filter parameters:
+    REAL(DbKi), DIMENSION(99)     :: hpf2_a2                     ! Second order filter - Denominator coefficient 2
+    REAL(DbKi), DIMENSION(99)     :: hpf2_a1                     ! Second order filter - Denominator coefficient 1
+    REAL(DbKi), DIMENSION(99)     :: hpf2_a0                     ! Second order filter - Denominator coefficient 0
+    REAL(DbKi), DIMENSION(99)     :: hpf2_b2                     ! Second order filter - Numerator coefficient 2
+    REAL(DbKi), DIMENSION(99)     :: hpf2_b1                     ! Second order filter - Numerator coefficient 1
+    REAL(DbKi), DIMENSION(99)     :: hpf2_b0                     ! Second order filter - Numerator coefficient 0
+    REAL(DbKi), DIMENSION(99)     :: hpf2_InputSignalLast2       ! Second order filter - Previous input 2
+    REAL(DbKi), DIMENSION(99)     :: hpf2_OutputSignalLast2      ! Second order filter - Previous output 2
+    REAL(DbKi), DIMENSION(99)     :: hpf2_InputSignalLast1       ! Second order filter - Previous input 1
+    REAL(DbKi), DIMENSION(99)     :: hpf2_OutputSignalLast1      ! Second order filter - Previous output 1
+!!    
+
 END TYPE FilterParameters
 
 TYPE, PUBLIC :: piParams
@@ -197,6 +216,7 @@ TYPE, PUBLIC :: LocalVariables
     REAL(DbKi)                    :: Azimuth                     ! Rotor aziumuth angle [rad]
     INTEGER(IntKi)                :: NumBl                       ! Number of blades [-]
     REAL(DbKi)                    :: FA_Acc                      ! Tower fore-aft acceleration [m/s^2]
+    REAL(DbKi)                    :: FA_Vel                      ! Tower fore-aft velocity [m/s], added by JS 2022-09-19
     REAL(DbKi)                    :: NacIMU_FA_Acc               ! Tower fore-aft acceleration [rad/s^2]
     REAL(DbKi)                    :: FA_AccHPF                   ! High-pass filtered fore-aft acceleration [m/s^2]
     REAL(DbKi)                    :: FA_AccHPFI                  ! Tower velocity, high-pass filtered and integrated fore-aft acceleration [m/s]

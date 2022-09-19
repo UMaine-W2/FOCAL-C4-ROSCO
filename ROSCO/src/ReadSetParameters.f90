@@ -47,6 +47,10 @@ CONTAINS
         LocalVar%rootMOOP(2)        = avrSWAP(31)
         LocalVar%rootMOOP(3)        = avrSWAP(32)
         LocalVar%FA_Acc             = avrSWAP(53)
+! mod made by A. Wright on 9-16-22: provide an input channel for nacelle fore-aft velocity, used in floating feedback control
+! For now assign this through avrSWAP(54), normally used for tower side-side acceleration which we don't need. We will change this later.
+        LocalVar%FA_Vel             = avrSWAP(54)
+!!   
         LocalVar%NacIMU_FA_Acc      = avrSWAP(83)
         LocalVar%Azimuth            = avrSWAP(60)
         LocalVar%NumBl              = NINT(avrSWAP(61))
