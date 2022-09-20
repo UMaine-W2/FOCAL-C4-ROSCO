@@ -495,10 +495,11 @@ CONTAINS
         REAL(DbKi)                      :: NacIMU_FA_vel ! Tower fore-aft pitching velocity [rad/s]
         
         ! Calculate floating contribution to pitch command
-        !FA_vel = PIController(LocalVar%FA_AccF, 0.0_DbKi, 1.0_DbKi, -100.0_DbKi , 100.0_DbKi ,LocalVar%DT, 0.0_DbKi, LocalVar%piP, LocalVar%restart, objInst%instPI) ! NJA: should never reach saturation limits....
+        FA_vel = PIController(LocalVar%FA_AccF, 0.0_DbKi, 1.0_DbKi, -1.265_DbKi , 1.265_DbKi ,LocalVar%DT, 0.0_DbKi, LocalVar%piP, LocalVar%restart, objInst%instPI) ! NJA: should never reach saturation limits....
 ! Mod made by A. Wright on 9-16-22: This is where we could define FA_vel through the nacelle fore-aft velocity variable - read in through avrSWAP(54) (see ReadSetParameers) 
-        FA_vel =LocalVar%FA_Vel !JS - for now, we will use the FA_vel calculated by ROSCO, so have this commented out
+        !FA_vel =LocalVar%FA_Vel !JS: use this line if using velocity calculated in LabVIEW
         !print *, 'FA_vel = ', FA_vel
+        LocalVar%FA_VelCtrl = FA_vel                  
 !!        
         NacIMU_FA_vel = PIController(LocalVar%NacIMU_FA_AccF, 0.0_DbKi, 1.0_DbKi, -100.0_DbKi , 100.0_DbKi ,LocalVar%DT, 0.0_DbKi, LocalVar%piP, LocalVar%restart, objInst%instPI) ! NJA: should never reach saturation limits....
         if (CntrPar%Fl_Mode == 1) THEN

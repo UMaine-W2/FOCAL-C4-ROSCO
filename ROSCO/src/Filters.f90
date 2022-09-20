@@ -327,8 +327,8 @@ CONTAINS
 ! Mod made by A. Wright on 9-16-22:
 ! Alternatively, we can filter the FA_AccF signal with the newly added 2nd order high-pass filter. Note: we need to define the filter natural frequency and damping values below - these are for now
 ! hard-wired values until we make the required updates to read these paramters in through the DISCON.IN file.
-            CntrPar%F_HPF2CornerFreq =  0.0075 ! in rad/s at full scale
-            CntrPar%F_HPF2Damping = 1.0
+            CntrPar%F_HPF2CornerFreq =  0.0250   ! in rad/s at full scale
+            CntrPar%F_HPF2Damping = 0.7
             LocalVar%FA_AccF = SecHPFilter(LocalVar%FA_AccF, LocalVar%DT, CntrPar%F_HPF2CornerFreq, CntrPar%F_HPF2Damping, LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instHPF) 
 
 ! Mod made by A. Wright on 9-16-22: do this for testing 2nd order HPF: test just a const input for now

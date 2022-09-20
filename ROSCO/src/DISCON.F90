@@ -109,6 +109,7 @@ IF (((LocalVar%iStatus >= 0) .OR. (LocalVar%iStatus <= -8)) .AND. (ErrVar%aviFAI
     CALL VariableSpeedControl(avrSWAP, CntrPar, LocalVar, objInst, ErrVar)
     CALL PitchControl(avrSWAP, CntrPar, LocalVar, objInst, DebugVar, ErrVar)
     
+    avrSWAP(199) = LocalVar%FA_VelCtrl
     avrSWAP(200) = LocalVar%WE_Vw
 
     !IF (CntrPar%Y_ControlMode > 0) THEN
@@ -134,7 +135,7 @@ IF (ErrVar%aviFAIL < 0) THEN
 ENDIF
 
 IF (LocalVar%iStatus == 0) THEN ! .TRUE. if we're on the first call to the DLL                                                                                                                                                                           
-   ErrVar%ErrMsg = ErrVar%ErrMsg//':'//'In ROSCO, FOCAL Campaign 4. Based on NREL/main + A.W. modifications. V1.0.1'
+   ErrVar%ErrMsg = ErrVar%ErrMsg//':'//'In ROSCO, FOCAL Campaign 4. Based on NREL/main + A.W. modifications. V1.0.4'
 ENDIF
 
 ErrMsg = ADJUSTL(TRIM(ErrVar%ErrMsg))

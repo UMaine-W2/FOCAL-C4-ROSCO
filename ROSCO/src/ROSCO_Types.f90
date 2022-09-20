@@ -217,6 +217,7 @@ TYPE, PUBLIC :: LocalVariables
     INTEGER(IntKi)                :: NumBl                       ! Number of blades [-]
     REAL(DbKi)                    :: FA_Acc                      ! Tower fore-aft acceleration [m/s^2]
     REAL(DbKi)                    :: FA_Vel                      ! Tower fore-aft velocity [m/s], added by JS 2022-09-19
+    REAL(DbKi)                    :: FA_VelCtrl                  ! Fore-aft velocity actually used by the controller internally, added by JS 2022-09-19
     REAL(DbKi)                    :: NacIMU_FA_Acc               ! Tower fore-aft acceleration [rad/s^2]
     REAL(DbKi)                    :: FA_AccHPF                   ! High-pass filtered fore-aft acceleration [m/s^2]
     REAL(DbKi)                    :: FA_AccHPFI                  ! Tower velocity, high-pass filtered and integrated fore-aft acceleration [m/s]
