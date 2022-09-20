@@ -135,7 +135,7 @@ IF (ErrVar%aviFAIL < 0) THEN
 ENDIF
 
 IF (LocalVar%iStatus == 0) THEN ! .TRUE. if we're on the first call to the DLL                                                                                                                                                                           
-   ErrVar%ErrMsg = ErrVar%ErrMsg//':'//'In ROSCO, FOCAL Campaign 4. Based on NREL/main + A.W. modifications. V1.0.4'
+   ErrVar%ErrMsg = ErrVar%ErrMsg//':'//'In ROSCO, FOCAL Campaign 4. Based on NREL/main + A.W. modifications. V1.0.5'
 ENDIF
 
 ErrMsg = ADJUSTL(TRIM(ErrVar%ErrMsg))
