@@ -49,7 +49,8 @@ CONTAINS
         LocalVar%FA_Acc             = avrSWAP(53)
 ! mod made by A. Wright on 9-16-22: provide an input channel for nacelle fore-aft velocity, used in floating feedback control
 ! For now assign this through avrSWAP(54), normally used for tower side-side acceleration which we don't need. We will change this later.
-        LocalVar%FA_Vel             = avrSWAP(54)
+! M. Fowler on 12/7/2022. Pass platform rotational velocity (rad/s) to ROSCO on avrSWAP(54) instead and use FL_mode=2
+        LocalVar%NacIMU_FA_Vel      = avrSWAP(54)
 !!   
         LocalVar%NacIMU_FA_Acc      = avrSWAP(83)
         LocalVar%Azimuth            = avrSWAP(60)

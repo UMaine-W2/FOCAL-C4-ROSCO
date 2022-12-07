@@ -500,12 +500,15 @@ CONTAINS
         FA_vel =LocalVar%FA_Vel !JS: use this line if using velocity calculated in LabVIEW
         !print *, 'FA_vel = ', FA_vel
         LocalVar%FA_VelCtrl = FA_vel                  
-!!        
-        NacIMU_FA_vel = PIController(LocalVar%NacIMU_FA_AccF, 0.0_DbKi, 1.0_DbKi, -100.0_DbKi , 100.0_DbKi ,LocalVar%DT, 0.0_DbKi, LocalVar%piP, LocalVar%restart, objInst%instPI) ! NJA: should never reach saturation limits....
-        if (CntrPar%Fl_Mode == 1) THEN
+!!   
+! Mod made by M. Fowler on 12/7/2022: Use LocalVar%NacIMU_FA_VelF directrly from the avrSwap(54) which has been filtered in filters.f90
+        !NacIMU_FA_vel = PIController(LocalVar%NacIMU_FA_AccF, 0.0_DbKi, 1.0_DbKi, -100.0_DbKi , 100.0_DbKi ,LocalVar%DT, 0.0_DbKi, LocalVar%piP, LocalVar%restart, objInst%instPI) ! NJA: should never reach saturation limits....
+        NacIMU_FA_Vel = LocalVar%NacIMU_FA_VelF
+!!
+		if (CntrPar%Fl_Mode == 1) THEN
             FloatingFeedback = (0.0_DbKi - FA_vel) * CntrPar%Fl_Kp !* LocalVar%PC_KP/maxval(CntrPar%PC_GS_KP)
         ELSEIF (CntrPar%Fl_Mode == 2) THEN
-            FloatingFeedback = (0.0_DbKi - NacIMU_FA_vel) * CntrPar%Fl_Kp !* LocalVar%PC_KP/maxval(CntrPar%PC_GS_KP)
+            FloatingFeedback = (0.0_DbKi - NacIMU_FA_Vel) * CntrPar%Fl_Kp !* LocalVar%PC_KP/maxval(CntrPar%PC_GS_KP)
         END IF
 
     END FUNCTION FloatingFeedback

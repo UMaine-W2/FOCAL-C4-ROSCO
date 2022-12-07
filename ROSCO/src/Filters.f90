@@ -320,9 +320,11 @@ CONTAINS
         ! Filtering the tower fore-aft acceleration signal 
         IF (CntrPar%Fl_Mode > 0) THEN
             ! Force to start at 0
-            LocalVar%NacIMU_FA_AccF = SecLPFilter(LocalVar%NacIMU_FA_Acc, LocalVar%DT, CntrPar%F_FlCornerFreq(1), CntrPar%F_FlCornerFreq(2), LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instSecLPF) ! Fixed Damping
+!! Mod made by M. Fowler 12/7/2022: Use NacIMU_FA_Vel and filter using SecLP and HPFilters. 
+
+ LocalVar%NacIMU_FA_VelF = SecLPFilter(LocalVar%NacIMU_FA_Vel, LocalVar%DT, CntrPar%F_FlCornerFreq(1), CntrPar%F_FlCornerFreq(2), LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instSecLPF) ! Fixed Damping
             LocalVar%FA_AccF = SecLPFilter(LocalVar%FA_Acc, LocalVar%DT, CntrPar%F_FlCornerFreq(1), CntrPar%F_FlCornerFreq(2), LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instSecLPF) ! Fixed Damping
-            LocalVar%NacIMU_FA_AccF = HPFilter(LocalVar%NacIMU_FA_AccF, LocalVar%DT, CntrPar%F_FlHighPassFreq, LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instHPF) 
+            LocalVar%NacIMU_FA_VelF = HPFilter(LocalVar%NacIMU_FA_VelF, LocalVar%DT, CntrPar%F_FlHighPassFreq, LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instHPF) 
             !LocalVar%FA_AccF = HPFilter(LocalVar%FA_AccF, LocalVar%DT, CntrPar%F_FlHighPassFreq, LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instHPF) 
 ! Mod made by A. Wright on 9-16-22:
 ! Alternatively, we can filter the FA_AccF signal with the newly added 2nd order high-pass filter. Note: we need to define the filter natural frequency and damping values below - these are for now
@@ -341,7 +343,10 @@ CONTAINS
 !!            
             
             IF (CntrPar%F_NotchType >= 2) THEN
-                LocalVar%NACIMU_FA_AccF = NotchFilter(LocalVar%NacIMU_FA_AccF, LocalVar%DT, CntrPar%F_NotchCornerFreq, CntrPar%F_NotchBetaNumDen(1), CntrPar%F_NotchBetaNumDen(2), LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instNotch) ! Fixed Damping
+! Mod made by M. Fowler on 12/7/2022: Filter the IMU velocity directly as that is what is passed to ROSCO on avrSWAP(54)
+                !LocalVar%NACIMU_FA_AccF = NotchFilter(LocalVar%NacIMU_FA_AccF, LocalVar%DT, CntrPar%F_NotchCornerFreq, CntrPar%F_NotchBetaNumDen(1), CntrPar%F_NotchBetaNumDen(2), LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instNotch) ! Fixed Damping
+				LocalVar%NACIMU_FA_VelF = NotchFilter(LocalVar%NacIMU_FA_VelF, LocalVar%DT, CntrPar%F_NotchCornerFreq, CntrPar%F_NotchBetaNumDen(1), CntrPar%F_NotchBetaNumDen(2), LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instNotch) ! Fixed Damping
+!!
                 LocalVar%FA_AccF = NotchFilter(LocalVar%FA_AccF, LocalVar%DT, CntrPar%F_NotchCornerFreq, CntrPar%F_NotchBetaNumDen(1), CntrPar%F_NotchBetaNumDen(2), LocalVar%FP, LocalVar%iStatus, LocalVar%restart, objInst%instNotch) ! Fixed Damping
             ENDIF
         ENDIF
