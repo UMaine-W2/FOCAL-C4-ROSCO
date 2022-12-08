@@ -218,7 +218,11 @@ TYPE, PUBLIC :: LocalVariables
     REAL(DbKi)                    :: FA_Acc                      ! Tower fore-aft acceleration [m/s^2]
     REAL(DbKi)                    :: FA_Vel                      ! Tower fore-aft velocity [m/s], added by JS 2022-09-19
     REAL(DbKi)                    :: FA_VelCtrl                  ! Fore-aft velocity actually used by the controller internally, added by JS 2022-09-19
-    REAL(DbKi)                    :: NacIMU_FA_Acc               ! Tower fore-aft acceleration [rad/s^2]
+ !! Mod by M. Fowler on 12/7/2022 Added NacIMU_FA_Vel as a possible input from avrSWAP
+	REAL(DbKi)                    :: NacIMU_FA_Vel               ! Tower pitch rotational velocity [rad/s]
+	REAL(DbKi)                    :: NacIMU_FA_VelF              ! Filtered Tower pitch rotational velocity [rad/s]
+ !	
+	REAL(DbKi)                    :: NacIMU_FA_Acc               ! Tower fore-aft acceleration [rad/s^2]
     REAL(DbKi)                    :: FA_AccHPF                   ! High-pass filtered fore-aft acceleration [m/s^2]
     REAL(DbKi)                    :: FA_AccHPFI                  ! Tower velocity, high-pass filtered and integrated fore-aft acceleration [m/s]
     REAL(DbKi)                    :: FA_PitCom(3)                ! Tower fore-aft vibration damping pitch contribution [rad]
